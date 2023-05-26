@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cmath>
 
+#include "vec3.h"
+#include "color.h"
+
 int main() {
   // Image
   const int image_width = 256;
@@ -14,17 +17,12 @@ int main() {
     std::cerr << "\rProgress: " << progress << "%" << std::flush;
 
     for (int i = 0; i < image_width; i++) {
-      double r = double(i) / (image_width - 1);
-      double g = double(j) / (image_height - 1);
-      double b = 0.25;
-
-      int ir = static_cast<int>(255.999 * r);
-      int ig = static_cast<int>(255.999 * g);
-      int ib = static_cast<int>(255.999 * b);
-
-      std::cout << ir << " " << ig << " " << ib << "\n";
+      color pixel_color(double(i) / (image_width - 1),
+                        double(j) / (image_height - 1),
+                        0.25);
+      print_color(std::cout, pixel_color);
     }
   }
 
-  std::cerr << "\n";
+  std::cerr << "\nRendering Complete!\n";
 }
