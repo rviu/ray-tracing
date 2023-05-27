@@ -5,25 +5,32 @@
 #include "color.h"
 #include "ray.h"
 
-bool hit_sphere(const point3& center, double radius, const ray& r) {
+double hit_sphere(const point3& center, double radius, const ray& r) {
   vec3 ray_origin_to_sphere_center = r.get_origin() - center;
 
-  double a = dot_product(r.get_direction(), r.get_direction());
-  double b = 2.0 * dot_product(ray_origin_to_sphere_center, r.get_direction());
-  double c = dot_product(ray_origin_to_sphere_center, ray_origin_to_sphere_center) - radius * radius;
+  double a = r.get_direction().length_squared();
+  double half_b = dot_product(ray_origin_to_sphere_center, r.get_direction());
+  double c = ray_origin_to_sphere_center.length_squared() - radius * radius;
 
-  double discriminant = b * b - 4 * a * c;
+  double discriminant = half_b * half_b - a * c;
 
-  return discriminant > 0;
+  if (discriminant < 0) {
+    return -1.0;
+  } else {
+    return (-half_b - std::sqrt(discriminant)) / a;
+  }
 }
 
 color get_ray_color(const ray& r) {
-  if (hit_sphere(point3(0, 0, -1), -.5, r)) {
-    return color(1, 0, 0);
+  double t = hit_sphere(point3(0, 0, -1), 0.5, r);
+
+  if (t > 0.0) {
+    vec3 normal = get_unit_vector(r.at(t) - vec3(0, 0, -1));
+    return 0.5 * color(normal.x() + 1, normal.y() + 1, normal.z() + 1);
   }
 
   vec3 unit_direction = get_unit_vector(r.get_direction());
-  double t = 0.5 * (unit_direction.y() + 1.0);
+  t = 0.5 * (unit_direction.y() + 1.0);
 
   color gradient_start = color(1.0, 1.0, 1.0);
   color gradient_end = color(0.5, 0.7, 1.0);
