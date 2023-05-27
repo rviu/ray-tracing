@@ -1,8 +1,14 @@
 #pragma once
 
+#include "util.h"
+
+class material;
+
 struct hit_record {
   point3 p;
   vec3 normal;
+  std::shared_ptr<material> mat_ptr;
+
   double t;
   bool front_face;
 
