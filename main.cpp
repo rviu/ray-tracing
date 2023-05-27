@@ -7,11 +7,16 @@
 #include "sphere.h"
 #include "camera.h"
 
-color get_ray_color(const ray& r, const hittable& world) {
+color get_ray_color(const ray& r, const hittable& world, int depth) {
   hit_record rec;
 
+  if (depth <= 0) {
+    return color(0, 0, 0);
+  }
+
   if (world.hit(r, 0, infinity, rec)) {
-    return 0.5 * (rec.normal + color(1, 1, 1));
+    point3 target = rec.p + rec.normal + random_in_unit_sphere();
+    return 0.5 * get_ray_color(ray(rec.p, target - rec.p), world, depth - 1);
   }
 
   vec3 unit_direction = get_unit_vector(r.get_direction());
@@ -29,6 +34,7 @@ int main() {
   const int image_width = 400;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
   const int samples_per_pixel = 100;
+  const int max_depth = 50;
 
   // World
   hittable_list world;
@@ -52,7 +58,7 @@ int main() {
         double u = (i + random_double()) / (image_width - 1);
         double v = (j + random_double()) / (image_height - 1);
         ray r = cam.get_ray(u, v);
-        pixel_color += get_ray_color(r, world);
+        pixel_color += get_ray_color(r, world, max_depth);
       }
 
       print_color(std::cout, pixel_color, samples_per_pixel);

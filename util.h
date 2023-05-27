@@ -4,9 +4,6 @@
 #include <limits>
 #include <memory>
 
-#include "ray.h"
-#include "vec3.h"
-
 const double infinity = std::numeric_limits<double>::infinity();
 const double pi = 3.14159265358979323846264;
 
@@ -27,3 +24,6 @@ inline double clamp(double x, double min, double max) {
   if (x > max) return max;
   return x;
 }
+
+#include "ray.h"
+#include "vec3.h"

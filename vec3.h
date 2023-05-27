@@ -4,6 +4,8 @@
 #include <cmath>
 #include <vector>
 
+#include "util.h"
+
 class vec3 {
 private:
   double e[3];
@@ -46,6 +48,14 @@ public:
 
   double length() const {
     return std::sqrt(length_squared());
+  }
+
+  inline static vec3 random() {
+    return vec3(random_double(), random_double(), random_double());
+  }
+
+  inline static vec3 random(double min, double max) {
+    return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
   }
 };
 
@@ -94,4 +104,13 @@ inline vec3 cross_product(const vec3 &u, const vec3 &v) {
 
 inline vec3 get_unit_vector(vec3 v) {
   return v / v.length();
+}
+
+inline vec3 random_in_unit_sphere() {
+  while (true) {
+    point3 p = vec3::random(-1, 1);
+    if (p.length_squared() >= 1) continue;
+
+    return p;
+  }
 }
