@@ -1,36 +1,20 @@
 #include <iostream>
 #include <cmath>
 
-#include "vec3.h"
+#include "util.h"
 #include "color.h"
-#include "ray.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
-double hit_sphere(const point3& center, double radius, const ray& r) {
-  vec3 ray_origin_to_sphere_center = r.get_origin() - center;
+color get_ray_color(const ray& r, const hittable& world) {
+  hit_record rec;
 
-  double a = r.get_direction().length_squared();
-  double half_b = dot_product(ray_origin_to_sphere_center, r.get_direction());
-  double c = ray_origin_to_sphere_center.length_squared() - radius * radius;
-
-  double discriminant = half_b * half_b - a * c;
-
-  if (discriminant < 0) {
-    return -1.0;
-  } else {
-    return (-half_b - std::sqrt(discriminant)) / a;
-  }
-}
-
-color get_ray_color(const ray& r) {
-  double t = hit_sphere(point3(0, 0, -1), 0.5, r);
-
-  if (t > 0.0) {
-    vec3 normal = get_unit_vector(r.at(t) - vec3(0, 0, -1));
-    return 0.5 * color(normal.x() + 1, normal.y() + 1, normal.z() + 1);
+  if (world.hit(r, 0, infinity, rec)) {
+    return 0.5 * (rec.normal + color(1, 1, 1));
   }
 
   vec3 unit_direction = get_unit_vector(r.get_direction());
-  t = 0.5 * (unit_direction.y() + 1.0);
+  double t = 0.5 * (unit_direction.y() + 1.0);
 
   color gradient_start = color(1.0, 1.0, 1.0);
   color gradient_end = color(0.5, 0.7, 1.0);
@@ -43,6 +27,11 @@ int main() {
   const double aspect_ratio = 16.0 / 9.0;
   const int image_width = 400;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
+
+  // World
+  hittable_list world;
+  world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));
+  world.add(std::make_shared<sphere>(point3(0, -100.5, -1), 100));
 
   // Camera
   double viewport_height = 2.0;
@@ -68,7 +57,7 @@ int main() {
       ray r(origin,
             lower_left_corner + u * horizontal + v * vertical - origin);
 
-      color pixel_color = get_ray_color(r);
+      color pixel_color = get_ray_color(r, world);
       print_color(std::cout, pixel_color);
     }
   }
