@@ -114,4 +114,4 @@ This will output the following image:
 
 ## License
 
-TODO
+MIT License
